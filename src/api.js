@@ -5,5 +5,9 @@ export const uploadAudio = async (formData) => {
         method: "POST",
         body: formData,
     });
-    return response.json();
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
 };
