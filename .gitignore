@@ -30,6 +30,10 @@ dist/
 *.txt
 
 # Ensure all .env files are ignored
+!.env
+!.env.*
+!**/.env
+!**/.env.*
 .env
 .env.*
 **/.env
