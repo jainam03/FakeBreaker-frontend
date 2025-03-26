@@ -6,10 +6,11 @@ import {
     Typography,
     Paper,
     Box,
-    CircularProgress,
     Alert,
     Container,
-    LinearProgress
+    LinearProgress,
+    Modal,
+    Tooltip
 } from "@mui/material";
 
 const UploadForm = () => {
@@ -19,9 +20,61 @@ const UploadForm = () => {
     const [statusMsg, setStatusMsg] = useState("");
     const navigate = useNavigate();
 
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
+
+        const uploadSimulation = setInterval(() => {
+            setUploadProgress((oldProgress) => {
+                const newProgress = oldProgress >= 100 ? 100 : oldProgress + 10
+                if (newProgress === 100) {
+                    clearInterval(uploadSimulation)
+                }
+                return newProgress
+            })
+        }, 500)
     };
+
+    // const handleUpload = async (e) => {
+    //     e.preventDefault();
+
+    //     if (!file) {
+    //         setError("Please select a file.");
+    //         return;
+    //     }
+
+    //     setError("");
+    //     setLoading(true);
+    //     setStatusMsg("Uploading file...");
+
+    //     const formData = new FormData();
+    //     formData.append("file", file);
+
+    //     try {
+    //         // Call uploadAudio helper, which should use your backend route
+    //         const data = await uploadAudio(formData);
+    //         setStatusMsg("Processing audio...");
+
+    //         // Simulate a brief delay to allow the user to see the status update
+    //         // (Remove this if not needed, or update dynamically if backend returns progress data.)
+    //         await new Promise((resolve) => setTimeout(resolve, 500));
+
+    //         setLoading(false);
+
+    //         if (!data || !data.label) {
+    //             throw new Error("Unexpected response from server.");
+    //         }
+
+    //         navigate("/results", { state: { result: data, fileName: file.name } });
+    //     } catch (err) {
+    //         setLoading(false);
+    //         setStatusMsg("");
+    //         setError(err.message || "Failed to process audio.");
+    //         console.error("Upload Error:", err);
+    //     }
+    // };
 
     const handleUpload = async (e) => {
         e.preventDefault();
@@ -33,38 +86,98 @@ const UploadForm = () => {
 
         setError("");
         setLoading(true);
-        setStatusMsg("Uploading file...");
 
+        // ✅ Declare `formData` before using it
         const formData = new FormData();
         formData.append("file", file);
 
+        console.log("Uploading file:", file);
+        console.log("FormData content:", formData.get("file")); // ✅ No more errors
+
         try {
-            // Call uploadAudio helper, which should use your backend route
-            const data = await uploadAudio(formData);
-            setStatusMsg("Processing audio...");
+            const response = await fetch("http://localhost:5000/api/upload", {
+                method: "POST",
+                body: formData, // ✅ No need to set headers, fetch does it automatically for FormData
+            });
 
-            // Simulate a brief delay to allow the user to see the status update
-            // (Remove this if not needed, or update dynamically if backend returns progress data.)
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
+            const data = await response.json();
             setLoading(false);
 
-            if (!data || !data.label) {
-                throw new Error("Unexpected response from server.");
+            if (!response.ok) {
+                throw new Error(data.error || "Upload failed");
             }
 
+            // ✅ If the upload is successful, navigate to the results page
             navigate("/results", { state: { result: data, fileName: file.name } });
+
         } catch (err) {
             setLoading(false);
-            setStatusMsg("");
             setError(err.message || "Failed to process audio.");
             console.error("Upload Error:", err);
         }
     };
 
     return (
+
         <Container maxWidth="sm">
+            <Container>
+                <Box display="flex" flexDirection="column" gap={3} mb={3}>
+                    <Box display="flex" justifyContent="center" alignItems="center">
+                        <Tooltip title="Learn about how it works" >
+                            <Button variant="outlined" onClick={() => setIsInfoModalOpen(true)} >
+                                How it works?
+                            </Button>
+                        </Tooltip>
+
+                    </Box>
+                </Box>
+
+                <Modal open={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} aria-labelledby="how-it-works-modal">
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: 400,
+                            bgcolor: 'background.paper',
+                            border: '2px solid #000',
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                            outlineColor: 'none',
+                            borderBlockColor: 'none',
+                            borderInlineColor: 'none',
+                        }}
+                    >
+                        <Typography variant="h6" id="modal-modal-title" gutterBottom>
+                            How it works?
+                        </Typography>
+                        <Box component="ul" ></Box>
+                        <Typography component="li">
+                            This app uses an extensively trained neural network model to analyze the audio file you upload.
+                        </Typography>
+                        <Typography component="li">
+                            The model predicts the audio's label based on its content.
+                        </Typography>
+                        <Typography component="li">
+                            The model is trained on an vast dataset of audio files with known labels.
+                        </Typography>
+                        <Typography component="li" >
+                            The app sends the audio file to the server, which processes the file and returns the predicted label.
+                        </Typography>
+                        <Typography component="li" >
+                            All that you have to do is just upload any mp3/wav file and hit the analyse button and the rest will be taken care of by the app.
+                        </Typography>
+                        <Button variant="contained" color="primary" onClick={() => setIsInfoModalOpen(false)} sx={{ mt: 2 }}>
+                            Close
+                        </Button>
+                    </Box>
+
+                </Modal>
+            </Container>
             <Paper elevation={3} sx={{ padding: 4, mt: 5 }}>
+
                 <Typography variant="h4" gutterBottom>
                     Upload Your Audio
                 </Typography>

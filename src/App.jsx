@@ -7,7 +7,7 @@ import UploadForm from "./components/UploadForm";
 import ResultsPage from "./components/ResultsPage";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   const theme = useMemo(
     () =>
