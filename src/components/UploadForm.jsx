@@ -37,45 +37,6 @@ const UploadForm = () => {
         }, 500)
     };
 
-    // const handleUpload = async (e) => {
-    //     e.preventDefault();
-
-    //     if (!file) {
-    //         setError("Please select a file.");
-    //         return;
-    //     }
-
-    //     setError("");
-    //     setLoading(true);
-    //     setStatusMsg("Uploading file...");
-
-    //     const formData = new FormData();
-    //     formData.append("file", file);
-
-    //     try {
-    //         // Call uploadAudio helper, which should use your backend route
-    //         const data = await uploadAudio(formData);
-    //         setStatusMsg("Processing audio...");
-
-    //         // Simulate a brief delay to allow the user to see the status update
-    //         // (Remove this if not needed, or update dynamically if backend returns progress data.)
-    //         await new Promise((resolve) => setTimeout(resolve, 500));
-
-    //         setLoading(false);
-
-    //         if (!data || !data.label) {
-    //             throw new Error("Unexpected response from server.");
-    //         }
-
-    //         navigate("/results", { state: { result: data, fileName: file.name } });
-    //     } catch (err) {
-    //         setLoading(false);
-    //         setStatusMsg("");
-    //         setError(err.message || "Failed to process audio.");
-    //         console.error("Upload Error:", err);
-    //     }
-    // };
-
     const handleUpload = async (e) => {
         e.preventDefault();
 
@@ -86,36 +47,32 @@ const UploadForm = () => {
 
         setError("");
         setLoading(true);
+        setStatusMsg("Uploading file...");
 
-        // ✅ Declare `formData` before using it
         const formData = new FormData();
         formData.append("file", file);
 
-        console.log("Uploading file:", file);
-        console.log("FormData content:", formData.get("file")); // ✅ No more errors
-
         try {
-            const response = await fetch("http://localhost:5000/api/upload", {
-                method: "POST",
-                body: formData, // ✅ No need to set headers, fetch does it automatically for FormData
-            });
+            // Call uploadAudio helper, which should use your backend route
+            const data = await uploadAudio(formData);
+            setStatusMsg("Processing audio...");
 
-            const data = await response.json();
             setLoading(false);
 
-            if (!response.ok) {
-                throw new Error(data.error || "Upload failed");
+            if (!data || !data.label) {
+                throw new Error("Unexpected response from server.");
             }
 
-            // ✅ If the upload is successful, navigate to the results page
             navigate("/results", { state: { result: data, fileName: file.name } });
-
         } catch (err) {
             setLoading(false);
+            setStatusMsg("");
             setError(err.message || "Failed to process audio.");
             console.error("Upload Error:", err);
         }
     };
+
+    
 
     return (
 
