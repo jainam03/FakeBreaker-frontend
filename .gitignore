@@ -24,3 +24,5 @@ dist/
 *.sw?
 
 .vercel
+.env
+.txt
