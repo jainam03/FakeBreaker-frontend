@@ -9,9 +9,12 @@ import {
     Alert,
     Container,
     LinearProgress,
-    Modal,
-    Tooltip
+    Card,
+    CardContent,
+    CardActions
 } from "@mui/material";
+import { UploadFile } from "@mui/icons-material";
+import { motion } from "framer-motion";
 
 const UploadForm = () => {
     const [file, setFile] = useState(null);
@@ -19,22 +22,10 @@ const UploadForm = () => {
     const [loading, setLoading] = useState(false);
     const [statusMsg, setStatusMsg] = useState("");
     const navigate = useNavigate();
-
-    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
-
-        const uploadSimulation = setInterval(() => {
-            setUploadProgress((oldProgress) => {
-                const newProgress = oldProgress >= 100 ? 100 : oldProgress + 10
-                if (newProgress === 100) {
-                    clearInterval(uploadSimulation)
-                }
-                return newProgress
-            })
-        }, 500)
     };
 
     const handleUpload = async (e) => {
@@ -53,10 +44,8 @@ const UploadForm = () => {
         formData.append("file", file);
 
         try {
-            // Call uploadAudio helper, which should use your backend route
             const data = await uploadAudio(formData);
             setStatusMsg("Processing audio...");
-
             setLoading(false);
 
             if (!data || !data.label) {
@@ -68,104 +57,72 @@ const UploadForm = () => {
             setLoading(false);
             setStatusMsg("");
             setError(err.message || "Failed to process audio.");
-            console.error("Upload Error:", err);
         }
     };
 
-    
-
     return (
-
-        <Container maxWidth="sm">
-            <Container>
-                <Box display="flex" flexDirection="column" gap={3} mb={3}>
-                    <Box display="flex" justifyContent="center" alignItems="center">
-                        <Tooltip title="Learn about how it works" >
-                            <Button variant="outlined" onClick={() => setIsInfoModalOpen(true)} >
-                                How it works?
+        <Container maxWidth="sm" sx={{ mt: 5 }}>
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+                <Card elevation={4} sx={{ p: 3, borderRadius: "15px", textAlign: "center" }}>
+                    <CardContent>
+                        <Typography
+                            variant="h4"
+                            fontWeight="bold"
+                            gutterBottom
+                            component={motion.div}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            Upload Your Audio
+                        </Typography>
+                        <Box mt={2}>
+                            <motion.div whileHover={{ scale: 1.05 }}>
+                                <Button variant="outlined" component="label" startIcon={<UploadFile />}>
+                                    Choose File
+                                    <input type="file" hidden onChange={handleFileChange} accept=".mp3, .wav" />
+                                </Button>
+                            </motion.div>
+                            {file && (
+                                <Typography variant="subtitle1" color="textSecondary" mt={1}>
+                                    {file.name}
+                                </Typography>
+                            )}
+                        </Box>
+                    </CardContent>
+                    <CardActions sx={{ justifyContent: "center" }}>
+                        <motion.div whileHover={{ scale: 1.05 }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="large"
+                                onClick={handleUpload}
+                                disabled={loading}
+                            >
+                                Upload & Analyze
                             </Button>
-                        </Tooltip>
+                        </motion.div>
+                    </CardActions>
+                    {loading && (
+                        <Box mt={2}>
+                            <Typography variant="body2">{statusMsg}</Typography>
+                            <Box mt={2} >
+                            <LinearProgress />
 
-                    </Box>
-                </Box>
-
-                <Modal open={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} aria-labelledby="how-it-works-modal">
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: 400,
-                            bgcolor: 'background.paper',
-                            border: '2px solid #000',
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            outlineColor: 'none',
-                            borderBlockColor: 'none',
-                            borderInlineColor: 'none',
-                        }}
-                    >
-                        <Typography variant="h6" id="modal-modal-title" gutterBottom>
-                            How it works?
-                        </Typography>
-                        <Box component="ul" ></Box>
-                        <Typography component="li">
-                            This app uses an extensively trained neural network model to analyze the audio file you upload.
-                        </Typography>
-                        <Typography component="li">
-                            The model predicts the audio's label based on its content.
-                        </Typography>
-                        <Typography component="li">
-                            The model is trained on an vast dataset of audio files with known labels.
-                        </Typography>
-                        <Typography component="li" >
-                            The app sends the audio file to the server, which processes the file and returns the predicted label.
-                        </Typography>
-                        <Typography component="li" >
-                            All that you have to do is just upload any mp3/wav file and hit the analyse button and the rest will be taken care of by the app.
-                        </Typography>
-                        <Button variant="contained" color="primary" onClick={() => setIsInfoModalOpen(false)} sx={{ mt: 2 }}>
-                            Close
-                        </Button>
-                    </Box>
-
-                </Modal>
-            </Container>
-            <Paper elevation={3} sx={{ padding: 4, mt: 5 }}>
-
-                <Typography variant="h4" gutterBottom>
-                    Upload Your Audio
-                </Typography>
-                <form onSubmit={handleUpload}>
-                    <Box display="flex" flexDirection="column" gap={2}>
-                        <Button variant="outlined" component="label">
-                            Choose File
-                            <input type="file" hidden onChange={handleFileChange} accept=".mp3, .wav" />
-                        </Button>
-                        {file && (
-                            <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
-                                Selected file: {file.name}
-                            </Typography>
-                        )}
-                        <Button variant="contained" color="primary" type="submit" disabled={loading}>
-                            Upload & Analyze
-                        </Button>
-                        {loading && (
-                            <>
-                                <Typography variant="body2">{statusMsg}</Typography>
-                                <LinearProgress />
-                            </>
-                        )}
-                    </Box>
-                </form>
-                {error && (
-                    <Alert severity="error" sx={{ mt: 2 }}>
-                        {error}
-                    </Alert>
-                )}
-            </Paper>
+                            </Box>
+                        </Box>
+                    )}
+                    {error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+                </Card>
+            </motion.div>
         </Container>
     );
 };

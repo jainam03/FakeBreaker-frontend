@@ -5,9 +5,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import NavBar from "./components/NavBar";
 import UploadForm from "./components/UploadForm";
 import ResultsPage from "./components/ResultsPage";
+import LandingPage from "./components/LandingPage";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(null);
 
   const theme = useMemo(
     () =>
@@ -25,7 +26,10 @@ function App() {
       <Router>
         <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
         <Routes>
-          <Route path="/" element={<Navigate to="/upload" replace/>} />
+          {/* Redirect from the root to the landing page */}
+          <Route path="/" element={<Navigate to="/landing" replace />} />
+          {/* Route for the Landing Page */}
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/upload" element={<UploadForm />} />
           <Route path="/results" element={<ResultsPage />} />
         </Routes>

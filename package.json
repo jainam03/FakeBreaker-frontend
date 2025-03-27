@@ -15,8 +15,10 @@
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
     "@mui/styled-engine-sc": "^6.4.6",
+    "framer-motion": "^12.6.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-joyride": "^2.9.3",
     "react-router-dom": "^7.3.0",
     "styled-components": "^6.1.15"
   },
