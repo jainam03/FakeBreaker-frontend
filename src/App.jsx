@@ -8,7 +8,7 @@ import ResultsPage from "./components/ResultsPage";
 import LandingPage from "./components/LandingPage";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(null);
+  const [darkMode, setDarkMode] = useState(true);
 
   const theme = useMemo(
     () =>
