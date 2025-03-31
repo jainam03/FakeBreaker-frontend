@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { uploadAudio } from "../api";
 import {
   Button,
@@ -13,13 +14,14 @@ import {
   CardContent,
   CardActions,
 } from "@mui/material";
-import { UploadFile } from "@mui/icons-material";
+import { UploadFile, Warning, NotificationAddOutlined } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [statusMsg, setStatusMsg] = useState("");
   const navigate = useNavigate();
   // const [uploadProgress, setUploadProgress] = useState(0);
@@ -140,14 +142,21 @@ const UploadForm = () => {
           justifyContent: "center",
           alignItems: "center",
           margin: "1rem",
+          flexDirection: "column",
         }}
       >
         <Paper
           elevation={3}
-          sx={{ p: 2, mt: 3, backgroundColor: "#f9f9f9", borderRadius: "10px" }}
+          sx={{ p: 2, mt: 3, backgroundColor: "#f9f9f9", borderRadius: "10px", display: "flex", flexDirection: "column" }}
         >
-          <Typography variant="body" color="error" fontWeight={"bold"}>The first analysis may take some time, but post that you won't be disappointed, for sure. So, please hang tight!</Typography>
+          <Typography variant="body" color="error" fontWeight={"bold"}>
+            <NotificationAddOutlined sx={{fontSize: 15}} />Alert: 
+            The first analysis may take some time, but post that you won't be disappointed, for sure. So, please hang tight!</Typography>
         </Paper>
+          <Typography mt={3} variant="body" color="error" fontWeight={"bold"} fontStyle={"italic"} >
+            <Warning sx={{fontSize: 15}} /> Disclaimer: 
+            We don't save any of the audio files that you upload. So feel free to perform as many analysis as you want. 
+          </Typography>
       </Box>
     </Container>
   );
