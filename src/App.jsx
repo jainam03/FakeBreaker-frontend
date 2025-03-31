@@ -6,6 +6,7 @@ import NavBar from "./components/NavBar";
 import UploadForm from "./components/UploadForm";
 import ResultsPage from "./components/ResultsPage";
 import LandingPage from "./components/LandingPage";
+import LearnMore from "./components/LearnMore";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -32,6 +33,7 @@ function App() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/upload" element={<UploadForm />} />
           <Route path="/results" element={<ResultsPage />} />
+          <Route path="learn-more" element={<LearnMore />}  />
         </Routes>
       </Router>
     </ThemeProvider>
