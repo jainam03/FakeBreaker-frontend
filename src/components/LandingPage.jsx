@@ -317,8 +317,8 @@ export default function LandingPage() {
                     py: { xs: 4, md: 6 },
                     px: { xs: 2, md: 4 },
                     background: theme.palette.mode === 'dark'
-                        ? "linear-gradient(135deg, #2196F3 30%, #64B5F6 90%)"
-                        : "linear-gradient(135deg, #1976D2 30%, #42A5F5 90%)",
+                        ? "linear-gradient(135deg,rgb(14, 141, 245) 30%,rgb(60, 146, 216) 90%)"
+                        : "linear-gradient(135deg, #1976D2 30%,rgb(36, 140, 224) 90%)",
                     borderRadius: "15px",
                     color: "white",
                     mb: 6
@@ -351,9 +351,9 @@ export default function LandingPage() {
                         px: 4,
                         borderRadius: "30px",
                         boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
-                        transition: "transform 0.3s ease-in-out",
+                        transition: "transform 0.2s ease-out",
                         "&:hover": {
-                            transform: "scale(1.05)",
+                            transform: "scale(1.04)",
                             backgroundColor: theme.palette.mode === 'dark' ? "#f0f0f0" : "#f5f5f5"
                         },
                         width: { xs: "100%", sm: "auto" }

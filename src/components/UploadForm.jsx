@@ -2,22 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { uploadAudio } from "../api";
-import {
-  Button,
-  Typography,
-  Paper,
-  Box,
-  Alert,
-  Container,
-  LinearProgress,
-  Card,
-  CardContent,
-  CardActions,
-  useTheme,
-  Divider,
-  Tooltip,
-  IconButton,
-} from "@mui/material";
+import { Button, Typography, Paper, Box, Alert, Container, LinearProgress, Card, CardContent, CardActions, useTheme, Divider, Tooltip, IconButton } from "@mui/material";
 import { UploadFile, Warning, NotificationAddOutlined, InfoOutlined, CloudUpload } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useDropzone } from 'react-dropzone';
@@ -97,7 +82,7 @@ const UploadForm = () => {
         y: 0,
         transition: {
           duration: 0.5,
-          ease: "easeOut",
+          ease: "easeInOut",
           when: "beforeChildren",
           staggerChildren: 0.1
         }
@@ -149,7 +134,7 @@ const UploadForm = () => {
             <motion.div
               variants={animationVariants.item}
               whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              transition={{ type: "spring", stiffness: 400 }}
             >
               <Box
                 {...getRootProps()}
