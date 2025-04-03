@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 
 const steps = [
     { title: "Upload", description: "Upload an MP3/WAV file for analysis.", icon: <CloudUploadIcon fontSize="large" color="primary" /> },
-    { title: "Analysis", description: "Our AI model processes the audio file.", icon: <GraphicEqIcon fontSize="large" color="secondary" /> },
+    { title: "Analysis", description: "Our model processes the audio file.", icon: <GraphicEqIcon fontSize="large" color="secondary" /> },
     { title: "Results", description: "View the deepfake probability score.", icon: <CheckCircleIcon fontSize="large" color="success" /> },
 ];
 
@@ -27,7 +27,7 @@ const faqs = [
     },
     {
         question: "How does the detection technology work?",
-        answer: "Our AI uses advanced machine learning techniques to analyze acoustic patterns, voice characteristics, and other subtle features that distinguish real from synthetic audio."
+        answer: "Our uses advanced deep learning techniques to analyze acoustic patterns, voice characteristics, and other subtle features that distinguish real from synthetic audio."
     }
 ];
 
@@ -330,13 +330,13 @@ export default function LandingPage() {
                     fontWeight="bold"
                     sx={{ fontSize: { xs: "1.8rem", md: "2.5rem" } }}
                 >
-                    Detect Audio Deepfakes with AI
+                    Detect Audio Deepfakes
                 </Typography>
                 <Typography
                     variant="body1"
                     sx={{ fontSize: { xs: "0.9rem", md: "1.2rem" }, mb: { xs: 2, md: 3 }, maxWidth: "700px", mx: "auto" }}
                 >
-                    Upload an audio file and let our AI analyze it for deepfake characteristics in seconds.
+                    Upload an audio file and let our model analyze it for deepfake characteristics in seconds.
                     Protect yourself and others from misinformation.
                 </Typography>
                 <Button
