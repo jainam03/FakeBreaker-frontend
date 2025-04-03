@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useMemo, useState } from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom"; // Changed to HashRouter
 import NavBar from "./components/NavBar";
 import UploadForm from "./components/UploadForm";
 import ResultsPage from "./components/ResultsPage";
@@ -24,7 +24,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
+      <Router> {/* Now HashRouter */}
         <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
         <Routes>
           {/* Redirect from the root to the landing page */}
