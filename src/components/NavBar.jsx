@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, IconButton, Container, Button, Box, Drawer, List, ListItem, ListItemButton, ListItemText, useTheme, useMediaQuery } from "@mui/material";
 import { Brightness4, Brightness7, Menu } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -9,7 +9,25 @@ const NavBar = ({ darkMode, setDarkMode }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const handleToggle = () => setDarkMode((prev) => !prev);
+    // Initialize darkMode from localStorage on component mount
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            setDarkMode(savedTheme === "dark");
+        } else {
+            // Set light mode as default if no theme is saved
+            setDarkMode(false);
+            localStorage.setItem("theme", "light");
+        }
+    }, [setDarkMode]);
+
+    const handleToggle = () => {
+        setDarkMode((prev) => {
+            const newTheme = !prev;
+            localStorage.setItem("theme", newTheme ? "dark" : "light");
+            return newTheme;
+        });
+    };
     const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
     const navItems = [

@@ -9,7 +9,7 @@ import LandingPage from "./components/LandingPage";
 import LearnMore from "./components/LearnMore";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState("");
 
   const theme = useMemo(
     () =>
