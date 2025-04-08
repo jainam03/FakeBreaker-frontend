@@ -69,8 +69,16 @@ const UploadForm = () => {
       navigate("/results", { state: { result: data, fileName: file.name } });
     } catch (err) {
       setLoading(false);
-      setStatusMsg("");
-      setError(err.message || "Failed to process audio. Please try again.");
+      /*setStatusMsg("");
+      setError(err.message || "Failed to process audio. Please try again.");*/
+      
+      if(err.message.includes("Failed to fetch.")) {
+      	setError("Server is unavailable or request timed out. Please try again later.")
+      } else {
+      	setError("Aww, snap! Unexpected error occured.")
+      }
+      console.error(err)
+      
     }
   };
 
