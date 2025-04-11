@@ -7,6 +7,7 @@ import UploadForm from "./components/UploadForm";
 import ResultsPage from "./components/ResultsPage";
 import LandingPage from "./components/LandingPage";
 import LearnMore from "./components/LearnMore";
+import Footer from "./components/Footer"; // Importing Footer component
 
 function App() {
   const [darkMode, setDarkMode] = useState("");
@@ -34,7 +35,10 @@ function App() {
           <Route path="/upload" element={<UploadForm />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="learn-more" element={<LearnMore />}  />
+          {/* Catch-all route for 404 Not Found */}
+          <Route path="*" element={<Navigate to="/landing" replace />} />
         </Routes>
+        <Footer /> {/* Footer added here */}
       </Router>
     </ThemeProvider>
   );
