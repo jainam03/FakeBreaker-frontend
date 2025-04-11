@@ -72,16 +72,18 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                                 component={motion.div}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                to="/"
                                 sx={{
                                     textDecoration: "none",
                                     color: "inherit",
                                     fontWeight: "bold",
                                     mr: 2,
                                     letterSpacing: 1,
+                                    cursor: "pointer",
                                 }}
                             >
-                                fAKE BREAKer
+                                <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+                                    fAKE BREAKer
+                                </Link>
                             </Typography>
                         </Box>
 
