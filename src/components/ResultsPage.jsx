@@ -1,21 +1,24 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
     Paper, Typography, Button, Box, LinearProgress, Divider,
     Container, Card, CardContent, useTheme, Grid, Tooltip,
-    CircularProgress
+    CircularProgress, Snackbar, Alert
 } from "@mui/material";
 import {
     CheckCircleOutline, WarningAmber, AudioFile,
-    InfoOutlined, ArrowBack, Share
+    InfoOutlined, ArrowBack, Share, Download
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
+import { captureElementScreenshot, shareScreenshot, downloadCanvasAsImage } from "../utils/screenshotUtils";
 
 const ResultsPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const theme = useTheme();
     const { result, fileName } = location.state || {};
+    const resultsCardRef = useRef(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
 
     // If no result data exists, redirect back to upload page
     if (!result) {
@@ -75,6 +78,78 @@ const ResultsPage = () => {
         }
     };
 
+    // Close snackbar
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
+    };
+
+    // Handle share functionality with screenshot
+    const handleShare = async () => {
+        try {
+            // Show loading message while processing
+            setSnackbar({ open: true, message: "Preparing screenshot...", severity: "info" });
+            
+            // Use html2canvas via our utility to capture the results card DOM element
+            const canvas = await captureElementScreenshot(resultsCardRef, {
+                backgroundColor: theme.palette.background.paper
+            });
+            
+            // Prepare share data for Web Share API
+            const shareData = {
+                title: 'Audio Deepfake Detection Result',
+                text: `Analysis result: ${isReal ? "Authentic Audio" : "Deepfake Detected"} (${Math.round(isReal ? result.real_probability : result.fake_probability)}% confidence)`,
+            };
+            
+            // Try to share the screenshot using Web Share API
+            // This returns true if sharing was successful, false otherwise
+            const shared = await shareScreenshot(canvas, shareData);
+            
+            // If sharing failed (unsupported browser or user canceled)
+            if (!shared) {
+                // Fall back to downloading the image
+                downloadCanvasAsImage(canvas, 'audioanalysis-result.png');
+                setSnackbar({ 
+                    open: true, 
+                    message: "Sharing not supported on this device. Image downloaded instead.", 
+                    severity: "info" 
+                });
+            }
+        } catch (error) {
+            console.error("Error sharing results:", error);
+            setSnackbar({ 
+                open: true, 
+                message: "Couldn't capture screenshot. Please try again later.", 
+                severity: "error" 
+            });
+        }
+    };
+
+    // Handle download functionality
+    const handleDownload = async () => {
+        try {
+            setSnackbar({ open: true, message: "Preparing download...", severity: "info" });
+            
+            const canvas = await captureElementScreenshot(resultsCardRef, {
+                backgroundColor: theme.palette.background.paper
+            });
+            
+            downloadCanvasAsImage(canvas, 'audioanalysis-result.png');
+            
+            setSnackbar({ 
+                open: true, 
+                message: "Image downloaded successfully!", 
+                severity: "success" 
+            });
+        } catch (error) {
+            console.error("Error downloading screenshot:", error);
+            setSnackbar({ 
+                open: true, 
+                message: "Couldn't download screenshot. Please try again later.", 
+                severity: "error" 
+            });
+        }
+    };
+
     return (
         <Container maxWidth="md" sx={{ mt: { xs: 3, sm: 5 }, mb: 6 }}>
             <motion.div
@@ -112,266 +187,303 @@ const ResultsPage = () => {
                         </Box>
 
                         <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-                            {/* File Info */}
-                            <Box
+                            {/* This div will be captured for screenshots */}
+                            <Box 
+                                ref={resultsCardRef}
                                 sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    px: 2,
-                                    py: 1.5,
-                                    mb: 3,
+                                    p: 2,
                                     borderRadius: "8px",
-                                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
+                                    position: "relative",
+                                    overflow: "hidden"
                                 }}
                             >
-                                <AudioFile color="primary" sx={{ mr: 1.5 }} />
-                                <Typography variant="body1" color="text.primary" sx={{ fontWeight: "medium" }}>
-                                    {fileName}
-                                </Typography>
-                            </Box>
-
-                            {/* Result Icon & Label */}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    mb: 4
-                                }}
-                            >
-                                <motion.div
-                                    initial={{ scale: 0, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{
-                                        type: "spring",
-                                        stiffness: 260,
-                                        damping: 20,
-                                        delay: 0.4
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            width: 120,
-                                            height: 120,
-                                            borderRadius: "50%",
-                                            mb: 2,
-                                            background: isReal
-                                                ? theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)'
-                                                : theme.palette.mode === 'dark' ? 'rgba(244, 67, 54, 0.15)' : 'rgba(244, 67, 54, 0.1)',
-                                            boxShadow: `0 0 15px ${isReal ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'}`,
-                                        }}
-                                    >
-                                        {isReal ? (
-                                            <CheckCircleOutline
-                                                sx={{
-                                                    fontSize: 70,
-                                                    color: theme.palette.success.main
-                                                }}
-                                            />
-                                        ) : (
-                                            <WarningAmber
-                                                sx={{
-                                                    fontSize: 70,
-                                                    color: theme.palette.error.main
-                                                }}
-                                            />
-                                        )}
-                                    </Box>
-                                </motion.div>
-
-                                <Typography
-                                    variant="h4"
+                                {/* File Info */}
+                                <Box
                                     sx={{
-                                        fontWeight: "bold",
-                                        color: isReal
-                                            ? theme.palette.success.main
-                                            : theme.palette.error.main
+                                        display: "flex",
+                                        alignItems: "center",
+                                        px: 2,
+                                        py: 1.5,
+                                        mb: 3,
+                                        borderRadius: "8px",
+                                        bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
                                     }}
                                 >
-                                    {isReal ? "Authentic Audio" : "Deepfake Detected"}
-                                </Typography>
+                                    <AudioFile color="primary" sx={{ mr: 1.5 }} />
+                                    <Typography variant="body1" color="text.primary" sx={{ fontWeight: "medium" }}>
+                                        {fileName}
+                                    </Typography>
+                                </Box>
 
-                                <Typography
-                                    variant="body1"
-                                    color="text.secondary"
-                                    sx={{ mt: 1, mb: 2 }}
+                                {/* Result Icon & Label */}
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        mb: 4
+                                    }}
                                 >
-                                    {isReal
-                                        ? "This audio appears to be authentic human speech."
-                                        : "This audio likely contains AI-generated content."}
-                                </Typography>
+                                    <motion.div
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 260,
+                                            damping: 20,
+                                            delay: 0.4
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                width: 120,
+                                                height: 120,
+                                                borderRadius: "50%",
+                                                mb: 2,
+                                                background: isReal
+                                                    ? theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)'
+                                                    : theme.palette.mode === 'dark' ? 'rgba(244, 67, 54, 0.15)' : 'rgba(244, 67, 54, 0.1)',
+                                                boxShadow: `0 0 15px ${isReal ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'}`,
+                                            }}
+                                        >
+                                            {isReal ? (
+                                                <CheckCircleOutline
+                                                    sx={{
+                                                        fontSize: 70,
+                                                        color: theme.palette.success.main
+                                                    }}
+                                                />
+                                            ) : (
+                                                <WarningAmber
+                                                    sx={{
+                                                        fontSize: 70,
+                                                        color: theme.palette.error.main
+                                                    }}
+                                                />
+                                            )}
+                                        </Box>
+                                    </motion.div>
+
+                                    <Typography
+                                        variant="h4"
+                                        sx={{
+                                            fontWeight: "bold",
+                                            color: isReal
+                                                ? theme.palette.success.main
+                                                : theme.palette.error.main
+                                        }}
+                                    >
+                                        {isReal ? "Authentic Audio" : "Deepfake Detected"}
+                                    </Typography>
+
+                                    <Typography
+                                        variant="body1"
+                                        color="text.secondary"
+                                        sx={{ mt: 1, mb: 2 }}
+                                    >
+                                        {isReal
+                                            ? "This audio appears to be authentic human speech."
+                                            : "This audio likely contains AI-generated content."}
+                                    </Typography>
+                                </Box>
+
+                                <Divider sx={{ mb: 4 }} />
+
+                                {/* Probability Metrics */}
+                                <Grid container spacing={3} sx={{ mb: 4 }}>
+                                    <Grid item xs={12} md={6}>
+                                        <Card
+                                            variant="outlined"
+                                            sx={{
+                                                p: 2,
+                                                height: "100%",
+                                                borderColor: getProbabilityColor(result.real_probability, true),
+                                                borderWidth: 2,
+                                                bgcolor: theme.palette.mode === 'dark'
+                                                    ? 'rgba(76, 175, 80, 0.05)'
+                                                    : 'rgba(76, 175, 80, 0.02)'
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    mb: 2,
+                                                    color: theme.palette.mode === 'dark'
+                                                        ? theme.palette.success.light
+                                                        : theme.palette.success.dark
+                                                }}
+                                            >
+                                                Real Probability
+                                                <Tooltip title="Likelihood that this audio is authentic human speech">
+                                                    <InfoOutlined fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
+                                                </Tooltip>
+                                            </Typography>
+
+                                            <Box sx={{ position: "relative", mb: 1 }}>
+                                                <Box sx={{ position: "relative", display: "inline-flex" }}>
+                                                    <CircularProgress
+                                                        variant="determinate"
+                                                        value={result.real_probability}
+                                                        size={80}
+                                                        thickness={6}
+                                                        sx={{
+                                                            color: getProbabilityColor(result.real_probability, true),
+                                                            '& .MuiCircularProgress-circle': {
+                                                                strokeLinecap: 'round',
+                                                            }
+                                                        }}
+                                                    />
+                                                    <Box
+                                                        sx={{
+                                                            top: 0,
+                                                            left: 0,
+                                                            bottom: 0,
+                                                            right: 0,
+                                                            position: 'absolute',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="h6"
+                                                            component="div"
+                                                            color="text.primary"
+                                                            fontWeight="bold"
+                                                        >
+                                                            {`${Math.round(result.real_probability)}%`}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{ mt: 2 }}
+                                            >
+                                                Confidence: <Typography component="span" fontWeight="bold">
+                                                    {getConfidenceLevel(result.real_probability)}
+                                                </Typography>
+                                            </Typography>
+                                        </Card>
+                                    </Grid>
+
+                                    <Grid item xs={12} md={6}>
+                                        <Card
+                                            variant="outlined"
+                                            sx={{
+                                                p: 2,
+                                                height: "100%",
+                                                borderColor: getProbabilityColor(result.fake_probability, false),
+                                                borderWidth: 2,
+                                                bgcolor: theme.palette.mode === 'dark'
+                                                    ? 'rgba(244, 67, 54, 0.05)'
+                                                    : 'rgba(244, 67, 54, 0.02)'
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    mb: 2,
+                                                    color: theme.palette.mode === 'dark'
+                                                        ? theme.palette.error.light
+                                                        : theme.palette.error.dark
+                                                }}
+                                            >
+                                                Fake Probability
+                                                <Tooltip title="Likelihood that this audio is AI-generated">
+                                                    <InfoOutlined fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
+                                                </Tooltip>
+                                            </Typography>
+
+                                            <Box sx={{ position: "relative", mb: 1 }}>
+                                                <Box sx={{ position: "relative", display: "inline-flex" }}>
+                                                    <CircularProgress
+                                                        variant="determinate"
+                                                        value={result.fake_probability}
+                                                        size={80}
+                                                        thickness={6}
+                                                        sx={{
+                                                            color: getProbabilityColor(result.fake_probability, false),
+                                                            '& .MuiCircularProgress-circle': {
+                                                                strokeLinecap: 'round',
+                                                            }
+                                                        }}
+                                                    />
+                                                    <Box
+                                                        sx={{
+                                                            top: 0,
+                                                            left: 0,
+                                                            bottom: 0,
+                                                            right: 0,
+                                                            position: 'absolute',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="h6"
+                                                            component="div"
+                                                            color="text.primary"
+                                                            fontWeight="bold"
+                                                        >
+                                                            {`${Math.round(result.fake_probability)}%`}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{ mt: 2 }}
+                                            >
+                                                Confidence: <Typography component="span" fontWeight="bold">
+                                                    {getConfidenceLevel(result.fake_probability)}
+                                                </Typography>
+                                            </Typography>
+                                        </Card>
+                                    </Grid>
+                                </Grid>
+
+                                {/* Disclaimer Section */}
+                                <Paper
+                                    elevation={1}
+                                    sx={{
+                                        p: 3,
+                                        mt: 3,
+                                        borderRadius: "10px",
+                                        bgcolor: theme.palette.mode === 'dark' ? 'rgba(25, 118, 210, 0.05)' : '#f9f9ff',
+                                        borderLeft: `4px solid ${theme.palette.info.main}`,
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <InfoOutlined color="info" sx={{ mr: 1.5, mt: 0.2 }} />
+                                        <Box>
+                                            <Typography variant="subtitle2" color="text.primary" fontWeight="bold" gutterBottom>
+                                                Important Information
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                The results generated by our detector provide a strong indication, but deepfake technology
+                                                is continuously evolving. While our model achieves high accuracy, it may not be 100% accurate
+                                                in all cases. Always verify critical audio from trusted sources.
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Paper>
                             </Box>
 
-                            <Divider sx={{ mb: 4 }} />
-
-                            {/* Probability Metrics */}
-                            <Grid container spacing={3} sx={{ mb: 4 }}>
-                                <Grid item xs={12} md={6}>
-                                    <Card
-                                        variant="outlined"
-                                        sx={{
-                                            p: 2,
-                                            height: "100%",
-                                            borderColor: getProbabilityColor(result.real_probability, true),
-                                            borderWidth: 2,
-                                            bgcolor: theme.palette.mode === 'dark'
-                                                ? 'rgba(76, 175, 80, 0.05)'
-                                                : 'rgba(76, 175, 80, 0.02)'
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="h6"
-                                            sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                mb: 2,
-                                                color: theme.palette.mode === 'dark'
-                                                    ? theme.palette.success.light
-                                                    : theme.palette.success.dark
-                                            }}
-                                        >
-                                            Real Probability
-                                            <Tooltip title="Likelihood that this audio is authentic human speech">
-                                                <InfoOutlined fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
-                                            </Tooltip>
-                                        </Typography>
-
-                                        <Box sx={{ position: "relative", mb: 1 }}>
-                                            <Box sx={{ position: "relative", display: "inline-flex" }}>
-                                                <CircularProgress
-                                                    variant="determinate"
-                                                    value={result.real_probability}
-                                                    size={80}
-                                                    thickness={6}
-                                                    sx={{
-                                                        color: getProbabilityColor(result.real_probability, true),
-                                                        '& .MuiCircularProgress-circle': {
-                                                            strokeLinecap: 'round',
-                                                        }
-                                                    }}
-                                                />
-                                                <Box
-                                                    sx={{
-                                                        top: 0,
-                                                        left: 0,
-                                                        bottom: 0,
-                                                        right: 0,
-                                                        position: 'absolute',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
-                                                    <Typography
-                                                        variant="h6"
-                                                        component="div"
-                                                        color="text.primary"
-                                                        fontWeight="bold"
-                                                    >
-                                                        {`${Math.round(result.real_probability)}%`}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-                                        </Box>
-
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            sx={{ mt: 2 }}
-                                        >
-                                            Confidence: <Typography component="span" fontWeight="bold">
-                                                {getConfidenceLevel(result.real_probability)}
-                                            </Typography>
-                                        </Typography>
-                                    </Card>
-                                </Grid>
-
-                                <Grid item xs={12} md={6}>
-                                    <Card
-                                        variant="outlined"
-                                        sx={{
-                                            p: 2,
-                                            height: "100%",
-                                            borderColor: getProbabilityColor(result.fake_probability, false),
-                                            borderWidth: 2,
-                                            bgcolor: theme.palette.mode === 'dark'
-                                                ? 'rgba(244, 67, 54, 0.05)'
-                                                : 'rgba(244, 67, 54, 0.02)'
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="h6"
-                                            sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                mb: 2,
-                                                color: theme.palette.mode === 'dark'
-                                                    ? theme.palette.error.light
-                                                    : theme.palette.error.dark
-                                            }}
-                                        >
-                                            Fake Probability
-                                            <Tooltip title="Likelihood that this audio is AI-generated">
-                                                <InfoOutlined fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
-                                            </Tooltip>
-                                        </Typography>
-
-                                        <Box sx={{ position: "relative", mb: 1 }}>
-                                            <Box sx={{ position: "relative", display: "inline-flex" }}>
-                                                <CircularProgress
-                                                    variant="determinate"
-                                                    value={result.fake_probability}
-                                                    size={80}
-                                                    thickness={6}
-                                                    sx={{
-                                                        color: getProbabilityColor(result.fake_probability, false),
-                                                        '& .MuiCircularProgress-circle': {
-                                                            strokeLinecap: 'round',
-                                                        }
-                                                    }}
-                                                />
-                                                <Box
-                                                    sx={{
-                                                        top: 0,
-                                                        left: 0,
-                                                        bottom: 0,
-                                                        right: 0,
-                                                        position: 'absolute',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
-                                                    <Typography
-                                                        variant="h6"
-                                                        component="div"
-                                                        color="text.primary"
-                                                        fontWeight="bold"
-                                                    >
-                                                        {`${Math.round(result.fake_probability)}%`}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-                                        </Box>
-
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            sx={{ mt: 2 }}
-                                        >
-                                            Confidence: <Typography component="span" fontWeight="bold">
-                                                {getConfidenceLevel(result.fake_probability)}
-                                            </Typography>
-                                        </Typography>
-                                    </Card>
-                                </Grid>
-                            </Grid>
-
-                            {/* Action Buttons */}
-                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 2, sm: 3 }, mt: 3, flexWrap: 'wrap' }}>
+                            {/* Action Buttons - Outside the screenshot area */}
+                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 2, sm: 3 }, mt: 4, flexWrap: 'wrap' }}>
                                 <Button
                                     variant="contained"
                                     startIcon={<ArrowBack />}
@@ -407,51 +519,49 @@ const ResultsPage = () => {
                                             borderWidth: 2
                                         }
                                     }}
-                                    onClick={() => {
-                                        // Simple share functionality
-                                        if (navigator.share) {
-                                            navigator.share({
-                                                title: 'Audio Deepfake Detection Result',
-                                                text: `Analysis result: ${result.result_label} (${Math.round(isReal ? result.real_probability : result.fake_probability)}% confidence)`
-                                            })
-                                        }
-                                    }}
+                                    onClick={handleShare}
                                 >
                                     Share Results
+                                </Button>
+
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Download />}
+                                    sx={{
+                                        py: 1.2,
+                                        px: 3,
+                                        borderRadius: "30px",
+                                        borderWidth: 2,
+                                        "&:hover": {
+                                            borderWidth: 2
+                                        }
+                                    }}
+                                    onClick={handleDownload}
+                                >
+                                    Download Image
                                 </Button>
                             </Box>
                         </CardContent>
                     </Card>
                 </motion.div>
-
-                {/* Disclaimer Section */}
-                <motion.div variants={itemVariants}>
-                    <Paper
-                        elevation={1}
-                        sx={{
-                            p: 3,
-                            mt: 3,
-                            borderRadius: "10px",
-                            bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : '#f9f9ff',
-                            borderLeft: `4px solid ${theme.palette.info.main}`,
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                            <InfoOutlined color="info" sx={{ mr: 1.5, mt: 0.2 }} />
-                            <Box>
-                                <Typography variant="subtitle2" color="text.primary" fontWeight="bold" gutterBottom>
-                                    Important Information
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    The results generated by our detector provide a strong indication, but deepfake technology
-                                    is continuously evolving. While our model achieves high accuracy, it may not be 100% accurate
-                                    in all cases. Always verify critical audio from trusted sources.
-                                </Typography>
-                            </Box>
-                        </Box>
-                    </Paper>
-                </motion.div>
             </motion.div>
+
+            {/* Snackbar for notifications */}
+            <Snackbar 
+                open={snackbar.open} 
+                autoHideDuration={6000} 
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseSnackbar} 
+                    severity={snackbar.severity} 
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };
