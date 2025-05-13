@@ -1,34 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Container, Button, Box, Drawer, List, ListItem, ListItemButton, ListItemText, useTheme, useMediaQuery } from "@mui/material";
-import { Brightness4, Brightness7, Menu } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const NavBar = ({ darkMode, setDarkMode }) => {
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+const NavBar = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDark, setIsDark] = useState(false);
 
-    // Initialize darkMode from localStorage on component mount
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme");
-        if (savedTheme) {
-            setDarkMode(savedTheme === "dark");
-        } else {
-            // Set light mode as default if no theme is saved
-            setDarkMode(false);
-            localStorage.setItem("theme", "light");
-        }
-    }, [setDarkMode]);
+        setIsDark(savedTheme === "dark");
+    }, []);
 
-    const handleToggle = () => {
-        setDarkMode((prev) => {
-            const newTheme = !prev;
-            localStorage.setItem("theme", newTheme ? "dark" : "light");
-            return newTheme;
-        });
+    const toggleTheme = () => {
+        const newTheme = !isDark;
+        setIsDark(newTheme);
+        document.documentElement.classList.toggle("dark", newTheme);
+        localStorage.setItem("theme", newTheme ? "dark" : "light");
     };
-    const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
     const navItems = [
         { text: "Home", path: "/" },
@@ -36,166 +24,96 @@ const NavBar = ({ darkMode, setDarkMode }) => {
     ];
 
     return (
-        <>
-            <AppBar
-                position="sticky"
-                sx={{
-                    mb: 3,
-                    background: darkMode
-                        ? 'linear-gradient(45deg, #1a1a1a 30%, #2a2a2a 90%)'
-                        : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.3s ease-in-out',
-                }}
-            >
-                <Container maxWidth="lg">
-                    <Toolbar sx={{ py: 1 }}>
-                        {/* Mobile Menu Button */}
-                        <IconButton
-                            color="inherit"
-                            edge="start"
-                            onClick={handleDrawerToggle}
-                            sx={{
-                                display: { xs: "flex", md: "none" },
-                                '&:hover': {
-                                    transform: 'scale(1.1)',
-                                }
-                            }}
-                        >
-                            <Menu />
-                        </IconButton>
+        <nav className="glass-navbar sticky top-0 z-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16">
+                    {/* Logo */}
+                    <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex-shrink-0"
+                    >
+                        <Link to="/" className="text-2xl font-bold text-primary-500 dark:text-primary-400">
+                            fAKE BREAKer
+                        </Link>
+                    </motion.div>
 
-                        {/* Title & Home Link */}
-                        <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-                            <Typography
-                                variant="h5"
-                                component={motion.div}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                sx={{
-                                    textDecoration: "none",
-                                    color: "inherit",
-                                    fontWeight: "bold",
-                                    mr: 2,
-                                    letterSpacing: 1,
-                                    cursor: "pointer",
-                                }}
-                            >
-                                <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-                                    fAKE BREAKer
-                                </Link>
-                            </Typography>
-                        </Box>
-
-                        {/* Desktop Menu */}
-                        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
-                            {navItems.map((item) => (
-                                <Button
-                                    key={item.text}
-                                    component={Link}
-                                    to={item.path}
-                                    color="inherit"
-                                    sx={{
-                                        position: 'relative',
-                                        '&::after': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            width: '0%',
-                                            height: '2px',
-                                            bottom: 0,
-                                            left: '50%',
-                                            transform: 'translateX(-50%)',
-                                            backgroundColor: 'white',
-                                            transition: 'width 0.3s ease-in-out',
-                                        },
-                                        '&:hover::after': {
-                                            width: '100%',
-                                        },
-                                    }}
-                                >
-                                    {item.text}
-                                </Button>
-                            ))}
-                            <IconButton
-                                color="inherit"
-                                onClick={handleToggle}
-                                sx={{
-                                    '&:hover': {
-                                        transform: 'rotate(180deg)',
-                                        transition: 'transform 0.5s ease-in-out',
-                                    }
-                                }}
-                            >
-                                {darkMode ? <Brightness7 /> : <Brightness4 />}
-                            </IconButton>
-                        </Box>
-                    </Toolbar>
-                </Container>
-            </AppBar>
-
-            {/* Mobile Drawer */}
-            <Drawer
-                anchor="left"
-                open={mobileOpen}
-                onClose={handleDrawerToggle}
-                sx={{
-                    '& .MuiDrawer-paper': {
-                        width: 240,
-                        background: darkMode
-                            ? 'linear-gradient(45deg, #1a1a1a 30%, #2a2a2a 90%)'
-                            : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                        color: 'white',
-                    }
-                }}
-            >
-                <List>
-                    {navItems.map((item) => (
-                        <ListItem key={item.text} disablePadding>
-                            <ListItemButton
-                                component={Link}
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center space-x-4">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.text}
                                 to={item.path}
-                                onClick={handleDrawerToggle}
-                                sx={{
-                                    '&:hover': {
-                                        background: 'rgba(255, 255, 255, 0.1)',
-                                    }
-                                }}
+                                className="nav-link"
                             >
-                                <ListItemText
-                                    primary={item.text}
-                                    sx={{
-                                        textAlign: 'center',
-                                        '& .MuiTypography-root': {
-                                            fontWeight: 'bold',
-                                        }
-                                    }}
-                                />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            onClick={handleToggle}
-                            sx={{
-                                '&:hover': {
-                                    background: 'rgba(255, 255, 255, 0.1)',
-                                }
-                            }}
+                                {item.text}
+                            </Link>
+                        ))}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                            aria-label="Toggle theme"
                         >
-                            <ListItemText
-                                primary={darkMode ? "Light Mode" : "Dark Mode"}
-                                sx={{
-                                    textAlign: 'center',
-                                    '& .MuiTypography-root': {
-                                        fontWeight: 'bold',
-                                    }
-                                }}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-            </Drawer>
-        </>
+                            {isDark ? (
+                                <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Mobile menu button */}
+                    <div className="md:hidden">
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                            aria-label="Toggle menu"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {isOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile Navigation */}
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="md:hidden"
+                >
+                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.text}
+                                to={item.path}
+                                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                {item.text}
+                            </Link>
+                        ))}
+                        <button
+                            onClick={toggleTheme}
+                            className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                        >
+                            {isDark ? "Light Mode" : "Dark Mode"}
+                        </button>
+                    </div>
+                </motion.div>
+            )}
+        </nav>
     );
 };
 

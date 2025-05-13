@@ -1,47 +1,27 @@
-import React from 'react'
-import { Box, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
     return (
-        <Box
-            component={motion.footer}
-            sx={{
-                backgroundColor: 'background.paper',
-                padding: 1,
-                position: 'relative',
-                bottom: 0,
-                width: '100%',
-                textAlign: 'center',
-                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)',
-            }}
-
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            <Typography variant='body2' >  Made with 💙 and ✨ by hackerman.</Typography>
-            <Typography variant="caption" color="text.secondary">
-                &copy; {new Date().getFullYear()} fAKE BREAKer. All rights reserved.
-            </Typography>
-            <Box sx={{ mt: 1, mb: 1, display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 2 }}>
-                <Link to="/learn-more" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Typography variant="inherit" color="text.primary">
-                        Learn More
-                    </Typography>
-                </Link>
-
-                <Link to="/contact" style={{ textDecoration: 'none', color: 'inherit' }} >
-                    <Typography variant='inherit' >Let's get in touch!</Typography>
-                </Link>
-            </Box>
-        </Box>
-
-
-
-    )
-}
+        <footer className="glass-navbar mt-auto">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div className="flex items-center space-x-4">
+                        <Link to="/" className="text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors duration-200">
+                            fAKE BREAKer
+                        </Link>
+                        <span className="text-gray-500 dark:text-gray-400">|</span>
+                        <Link to="/learn-more" className="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200">
+                            Learn More
+                        </Link>
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                        © {new Date().getFullYear()} fAKE BREAKer. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </footer>
+    );
+};
 
 export default Footer;

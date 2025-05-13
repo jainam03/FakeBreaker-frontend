@@ -1,22 +1,11 @@
 import React, { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-    Paper, Typography, Button, Box, LinearProgress, Divider,
-    Container, Card, CardContent, useTheme, Tooltip,
-    CircularProgress, Snackbar, Alert
-} from "@mui/material";
-import Grid from '@mui/material/Grid';
-import {
-    CheckCircleOutline, WarningAmber, AudioFile,
-    InfoOutlined, ArrowBack, Share, Download
-} from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { captureElementScreenshot, shareScreenshot, downloadCanvasAsImage } from "../utils/screenshotUtils";
 
 const ResultsPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const theme = useTheme();
     const { result, fileName } = location.state || {};
     const resultsCardRef = useRef(null);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
@@ -69,13 +58,13 @@ const ResultsPage = () => {
     // Get color for probability
     const getProbabilityColor = (probability, isGood) => {
         if (isGood) {
-            return probability > 80 ? theme.palette.success.main :
-                probability > 60 ? theme.palette.success.light :
-                    theme.palette.warning.main;
+            return probability > 80 ? "text-green-500" :
+                probability > 60 ? "text-green-400" :
+                    "text-yellow-500";
         } else {
-            return probability > 80 ? theme.palette.error.main :
-                probability > 60 ? theme.palette.error.light :
-                    theme.palette.warning.main;
+            return probability > 80 ? "text-red-500" :
+                probability > 60 ? "text-red-400" :
+                    "text-yellow-500";
         }
     };
 
@@ -92,7 +81,7 @@ const ResultsPage = () => {
             
             // Use html2canvas via our utility to capture the results card DOM element
             const canvas = await captureElementScreenshot(resultsCardRef, {
-                backgroundColor: theme.palette.background.paper
+                backgroundColor: "white"
             });
             
             // Prepare share data for Web Share API
@@ -131,7 +120,7 @@ const ResultsPage = () => {
             setSnackbar({ open: true, message: "Preparing download...", severity: "info" });
             
             const canvas = await captureElementScreenshot(resultsCardRef, {
-                backgroundColor: theme.palette.background.paper
+                backgroundColor: "white"
             });
             
             downloadCanvasAsImage(canvas, 'audioanalysis-result.png');
@@ -152,418 +141,143 @@ const ResultsPage = () => {
     };
 
     return (
-        <Container maxWidth="md" sx={{ mt: { xs: 3, sm: 5 }, mb: 6 }}>
+        <div className="max-w-2xl mx-auto mt-10 mb-16 px-4">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
                 <motion.div variants={itemVariants}>
-                    <Card
-                        elevation={4}
-                        sx={{
-                            borderRadius: "16px",
-                            overflow: "hidden",
-                            bgcolor: "background.paper"
-                        }}
-                    >
+                    <div className="glass-card overflow-hidden">
                         {/* Header */}
-                        <Box
-                            sx={{
-                                py: 3,
-                                px: 4,
-                                background: theme.palette.mode === 'dark'
-                                    ? "linear-gradient(120deg, #2c3e50 0%, #1e3c72 100%)"
-                                    : "linear-gradient(120deg, #1976d2 0%, #64b5f6 100%)",
-                                color: "white",
-                                textAlign: "center"
-                            }}
-                        >
-                            <Typography variant="h4" fontWeight="bold" gutterBottom>
-                                Analysis Results
-                            </Typography>
-                            <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
-                                Audio deepfake detection completed
-                            </Typography>
-                        </Box>
+                        <div className="py-6 px-6 bg-gradient-to-r from-primary-600 to-primary-400 text-white text-center">
+                            <h2 className="text-2xl font-bold mb-2">Analysis Results</h2>
+                            <p className="opacity-90">Audio deepfake detection completed</p>
+                        </div>
 
-                        <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+                        <div className="p-6">
                             {/* This div will be captured for screenshots */}
-                            <Box 
+                            <div 
                                 ref={resultsCardRef}
-                                sx={{
-                                    p: 2,
-                                    borderRadius: "8px",
-                                    position: "relative",
-                                    overflow: "hidden"
-                                }}
+                                className="p-4 rounded-lg relative overflow-hidden"
                             >
-                                {/* File Info */}
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        px: 2,
-                                        py: 1.5,
-                                        mb: 3,
-                                        borderRadius: "8px",
-                                        bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
-                                    }}
-                                >
-                                    <AudioFile color="primary" sx={{ mr: 1.5 }} />
-                                    <Typography variant="body1" color="text.primary" sx={{ fontWeight: "medium" }}>
-                                        {fileName}
-                                    </Typography>
-                                </Box>
-
-                                {/* Result Icon & Label */}
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "center",
-                                        mb: 4
-                                    }}
-                                >
-                                    <motion.div
-                                        initial={{ scale: 0, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{
-                                            type: "spring",
-                                            stiffness: 260,
-                                            damping: 20,
-                                            delay: 0.4
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                width: 120,
-                                                height: 120,
-                                                borderRadius: "50%",
-                                                mb: 2,
-                                                background: isReal
-                                                    ? theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)'
-                                                    : theme.palette.mode === 'dark' ? 'rgba(244, 67, 54, 0.15)' : 'rgba(244, 67, 54, 0.1)',
-                                                boxShadow: `0 0 15px ${isReal ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'}`,
-                                            }}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center">
+                                        <svg className="w-6 h-6 text-primary-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                        </svg>
+                                        <span className="font-medium">{fileName}</span>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={handleShare}
+                                            className="p-2 text-gray-600 hover:text-primary-500 transition-colors"
+                                            aria-label="Share results"
                                         >
-                                            {isReal ? (
-                                                <CheckCircleOutline
-                                                    sx={{
-                                                        fontSize: 70,
-                                                        color: theme.palette.success.main
-                                                    }}
-                                                />
-                                            ) : (
-                                                <WarningAmber
-                                                    sx={{
-                                                        fontSize: 70,
-                                                        color: theme.palette.error.main
-                                                    }}
-                                                />
-                                            )}
-                                        </Box>
-                                    </motion.div>
-
-                                    <Typography
-                                        variant="h4"
-                                        sx={{
-                                            fontWeight: "bold",
-                                            color: isReal
-                                                ? theme.palette.success.main
-                                                : theme.palette.error.main
-                                        }}
-                                    >
-                                        {isReal ? "Authentic Audio" : "Deepfake Detected"}
-                                    </Typography>
-
-                                    <Typography
-                                        variant="body1"
-                                        color="text.secondary"
-                                        sx={{ mt: 1, mb: 2 }}
-                                    >
-                                        {isReal
-                                            ? "This audio appears to be authentic human speech."
-                                            : "This audio likely contains AI-generated content."}
-                                    </Typography>
-                                </Box>
-
-                                <Divider sx={{ mb: 4 }} />
-
-                                {/* Probability Metrics */}
-                                <Grid container spacing={3} sx={{ mb: 4 }}>
-                                    <Grid item xs={12} md={6}>
-                                        <Card
-                                            variant="outlined"
-                                            sx={{
-                                                p: 2,
-                                                height: "100%",
-                                                borderColor: getProbabilityColor(result.real_probability, true),
-                                                borderWidth: 2,
-                                                bgcolor: theme.palette.mode === 'dark'
-                                                    ? 'rgba(76, 175, 80, 0.05)'
-                                                    : 'rgba(76, 175, 80, 0.02)'
-                                            }}
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={handleDownload}
+                                            className="p-2 text-gray-600 hover:text-primary-500 transition-colors"
+                                            aria-label="Download results"
                                         >
-                                            <Typography
-                                                variant="h6"
-                                                sx={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    mb: 2,
-                                                    color: theme.palette.mode === 'dark'
-                                                        ? theme.palette.success.light
-                                                        : theme.palette.success.dark
-                                                }}
-                                            >
-                                                Real Probability
-                                                <Tooltip title="Likelihood that this audio is authentic human speech">
-                                                    <InfoOutlined fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
-                                                </Tooltip>
-                                            </Typography>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
 
-                                            <Box sx={{ position: "relative", mb: 1 }}>
-                                                <Box sx={{ position: "relative", display: "inline-flex" }}>
-                                                    <CircularProgress
-                                                        variant="determinate"
-                                                        value={result.real_probability}
-                                                        size={80}
-                                                        thickness={6}
-                                                        sx={{
-                                                            color: getProbabilityColor(result.real_probability, true),
-                                                            '& .MuiCircularProgress-circle': {
-                                                                strokeLinecap: 'round',
-                                                            }
-                                                        }}
-                                                    />
-                                                    <Box
-                                                        sx={{
-                                                            top: 0,
-                                                            left: 0,
-                                                            bottom: 0,
-                                                            right: 0,
-                                                            position: 'absolute',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                        }}
-                                                    >
-                                                        <Typography
-                                                            variant="h6"
-                                                            component="div"
-                                                            color="text.primary"
-                                                            fontWeight="bold"
-                                                        >
-                                                            {`${Math.round(result.real_probability)}%`}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            </Box>
+                                <div className="mb-6">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-lg font-semibold">Result</span>
+                                        <span className={`text-lg font-bold ${isReal ? 'text-green-500' : 'text-red-500'}`}>
+                                            {isReal ? "Authentic Audio" : "Deepfake Detected"}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 bg-gray-200 rounded-full">
+                                        <div 
+                                            className={`h-2 rounded-full ${isReal ? 'bg-green-500' : 'bg-red-500'}`}
+                                            style={{ width: `${Math.round(isReal ? result.real_probability : result.fake_probability)}%` }}
+                                        ></div>
+                                    </div>
+                                    <div className="mt-1 text-sm text-gray-600">
+                                        Confidence: {getConfidenceLevel(Math.round(isReal ? result.real_probability : result.fake_probability))}
+                                    </div>
+                                </div>
 
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                sx={{ mt: 2 }}
-                                            >
-                                                Confidence: <Typography component="span" fontWeight="bold">
-                                                    {getConfidenceLevel(result.real_probability)}
-                                                </Typography>
-                                            </Typography>
-                                        </Card>
-                                    </Grid>
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Real Probability</div>
+                                        <div className={`text-2xl font-bold ${getProbabilityColor(result.real_probability, true)}`}>
+                                            {Math.round(result.real_probability)}%
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Fake Probability</div>
+                                        <div className={`text-2xl font-bold ${getProbabilityColor(result.fake_probability, false)}`}>
+                                            {Math.round(result.fake_probability)}%
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <Grid item xs={12} md={6}>
-                                        <Card
-                                            variant="outlined"
-                                            sx={{
-                                                p: 2,
-                                                height: "100%",
-                                                borderColor: getProbabilityColor(result.fake_probability, false),
-                                                borderWidth: 2,
-                                                bgcolor: theme.palette.mode === 'dark'
-                                                    ? 'rgba(244, 67, 54, 0.05)'
-                                                    : 'rgba(244, 67, 54, 0.02)'
-                                            }}
-                                        >
-                                            <Typography
-                                                variant="h6"
-                                                sx={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    mb: 2,
-                                                    color: theme.palette.mode === 'dark'
-                                                        ? theme.palette.error.light
-                                                        : theme.palette.error.dark
-                                                }}
-                                            >
-                                                Fake Probability
-                                                <Tooltip title="Likelihood that this audio is AI-generated">
-                                                    <InfoOutlined fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
-                                                </Tooltip>
-                                            </Typography>
-
-                                            <Box sx={{ position: "relative", mb: 1 }}>
-                                                <Box sx={{ position: "relative", display: "inline-flex" }}>
-                                                    <CircularProgress
-                                                        variant="determinate"
-                                                        value={result.fake_probability}
-                                                        size={80}
-                                                        thickness={6}
-                                                        sx={{
-                                                            color: getProbabilityColor(result.fake_probability, false),
-                                                            '& .MuiCircularProgress-circle': {
-                                                                strokeLinecap: 'round',
-                                                            }
-                                                        }}
-                                                    />
-                                                    <Box
-                                                        sx={{
-                                                            top: 0,
-                                                            left: 0,
-                                                            bottom: 0,
-                                                            right: 0,
-                                                            position: 'absolute',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                        }}
-                                                    >
-                                                        <Typography
-                                                            variant="h6"
-                                                            component="div"
-                                                            color="text.primary"
-                                                            fontWeight="bold"
-                                                        >
-                                                            {`${Math.round(result.fake_probability)}%`}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            </Box>
-
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                sx={{ mt: 2 }}
-                                            >
-                                                Confidence: <Typography component="span" fontWeight="bold">
-                                                    {getConfidenceLevel(result.fake_probability)}
-                                                </Typography>
-                                            </Typography>
-                                        </Card>
-                                    </Grid>
-                                </Grid>
-
-                                {/* Disclaimer Section */}
-                                <Paper
-                                    elevation={1}
-                                    sx={{
-                                        p: 3,
-                                        mt: 3,
-                                        borderRadius: "10px",
-                                        bgcolor: theme.palette.mode === 'dark' ? 'rgba(25, 118, 210, 0.05)' : '#f9f9ff',
-                                        borderLeft: `4px solid ${theme.palette.info.main}`,
-                                    }}
-                                >
-                                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                                        <InfoOutlined color="info" sx={{ mr: 1.5, mt: 0.2 }} />
-                                        <Box>
-                                            <Typography variant="subtitle2" color="text.primary" fontWeight="bold" gutterBottom>
+                                {/* Important Information Warning */}
+                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2">
                                                 Important Information
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
+                                    </h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">
                                                 The results generated by our detector provide a strong indication, but deepfake technology
                                                 is continuously evolving. While our model achieves high accuracy, it may not be 100% accurate
                                                 in all cases. Always verify critical audio from trusted sources.
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                </Paper>
-                            </Box>
+                                    </p>
+                                </div>
 
-                            {/* Action Buttons - Outside the screenshot area */}
-                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 2, sm: 3 }, mt: 4, flexWrap: 'wrap' }}>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<ArrowBack />}
+                                <div className="flex justify-between">
+                                    <button
                                     onClick={() => navigate("/upload")}
-                                    sx={{
-                                        py: 1.2,
-                                        px: 3,
-                                        borderRadius: "30px",
-                                        fontWeight: "bold",
-                                        background: theme.palette.mode === 'dark'
-                                            ? "linear-gradient(90deg, #2196F3 0%, #64B5F6 100%)"
-                                            : "linear-gradient(90deg, #1976D2 0%, #42A5F5 100%)",
-                                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
-                                        "&:hover": {
-                                            background: theme.palette.mode === 'dark'
-                                                ? "linear-gradient(90deg, #1E88E5 0%, #2196F3 100%)"
-                                                : "linear-gradient(90deg, #1565C0 0%, #1976D2 100%)",
-                                        }
-                                    }}
-                                >
-                                    Analyze Another Audio
-                                </Button>
-
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<Share />}
-                                    sx={{
-                                        py: 1.2,
-                                        px: 3,
-                                        borderRadius: "30px",
-                                        borderWidth: 2,
-                                        "&:hover": {
-                                            borderWidth: 2
-                                        }
-                                    }}
+                                        className="btn-secondary"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                        </svg>
+                                        Back to Upload
+                                    </button>
+                                    <button
                                     onClick={handleShare}
+                                        className="btn-primary"
                                 >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
                                     Share Results
-                                </Button>
-
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<Download />}
-                                    sx={{
-                                        py: 1.2,
-                                        px: 3,
-                                        borderRadius: "30px",
-                                        borderWidth: 2,
-                                        "&:hover": {
-                                            borderWidth: 2
-                                        }
-                                    }}
-                                    onClick={handleDownload}
-                                >
-                                    Download Image
-                                </Button>
-                            </Box>
-                        </CardContent>
-                    </Card>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
             </motion.div>
 
-            {/* Snackbar for notifications */}
-            <Snackbar 
-                open={snackbar.open} 
-                autoHideDuration={6000} 
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert 
-                    onClose={handleCloseSnackbar} 
-                    severity={snackbar.severity} 
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-        </Container>
+            {/* Snackbar */}
+            {snackbar.open && (
+                <div className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 max-w-sm">
+                    <div className={`text-sm ${snackbar.severity === 'error' ? 'text-red-600' : 'text-blue-600'}`}>
+                        {snackbar.message}
+                    </div>
+                    <button
+                        onClick={handleCloseSnackbar}
+                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            )}
+        </div>
     );
 };
 

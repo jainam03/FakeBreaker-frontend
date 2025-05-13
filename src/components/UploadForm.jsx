@@ -1,9 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-// eslint-disable-next-line no-unused-vars
 import { uploadAudio } from "../api";
-import { Button, Typography, Paper, Box, Alert, Container, LinearProgress, Card, CardContent, CardActions, useTheme, Divider, Tooltip, IconButton } from "@mui/material";
-import { UploadFile, Warning, NotificationAddOutlined, InfoOutlined, CloudUpload } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useDropzone } from 'react-dropzone';
 
@@ -11,11 +8,8 @@ const UploadForm = () => {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [statusMsg, setStatusMsg] = useState("");
   const navigate = useNavigate();
-  const theme = useTheme();
-  // const [uploadProgress, setUploadProgress] = useState(0);
 
   const onDrop = useCallback(acceptedFiles => {
     if (acceptedFiles && acceptedFiles.length > 0) {
@@ -34,51 +28,33 @@ const UploadForm = () => {
     multiple: false
   });
 
-  const handleFileChange = (e) => {
-    if (e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-      setError("");
-    }
-  };
-
   const handleUpload = async (e) => {
     e.preventDefault();
-
     if (!file) {
       setError("Please select an audio file to analyze.");
       return;
     }
-
     setError("");
     setLoading(true);
     setStatusMsg("Uploading your audio file...");
-
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const data = await uploadAudio(formData);
       setStatusMsg("Processing audio with AI...");
-
       if (!data || !data.label) {
         throw new Error("Unexpected response from server.");
       }
-
-      // Complete the analysis and navigate
       setLoading(false);
       navigate("/results", { state: { result: data, fileName: file.name } });
     } catch (err) {
       setLoading(false);
-      /*setStatusMsg("");
-      setError(err.message || "Failed to process audio. Please try again.");*/
-      
       if(err.message.includes("Failed to fetch.")) {
       	setError("Server is unavailable or request timed out. Please try again later.")
       } else {
       	setError("Aww, snap! Unexpected error occured.")
       }
       console.error(err)
-      
     }
   };
 
@@ -103,258 +79,113 @@ const UploadForm = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: { xs: 3, sm: 5 }, mb: 6 }}>
+    <div className="max-w-2xl mx-auto mt-10 mb-16 px-4">
       <motion.div
         variants={animationVariants.container}
         initial="hidden"
         animate="visible"
       >
-        <Card
-          elevation={4}
-          sx={{
-            p: { xs: 2, sm: 3, md: 4 },
-            borderRadius: "16px",
-            textAlign: "center",
-            bgcolor: "background.paper",
-            overflow: "hidden"
-          }}
-        >
-          <CardContent>
+        <div className="glass-card p-8 text-center">
             <motion.div variants={animationVariants.item}>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                gutterBottom
-                color="primary"
-                sx={{ mb: 3, fontSize: { xs: "1.5rem", sm: "2rem" } }}
-              >
-                Upload Your Audio
-              </Typography>
+            <h2 className="text-3xl font-bold text-primary-500 dark:text-primary-400 mb-3">Upload Your Audio</h2>
             </motion.div>
-
             <motion.div variants={animationVariants.item}>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: "90%", mx: "auto" }}>
-                Upload an MP3 or WAV file to analyze for potential deepfake characteristics.
-                Our AI model will process your audio and provide a detailed analysis.
-              </Typography>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+              Upload an MP3 or WAV file to analyze for potential deepfake characteristics. Our AI model will process your audio and provide a detailed analysis.
+            </p>
             </motion.div>
-
             <motion.div
               variants={animationVariants.item}
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <Box
+            <div
                 {...getRootProps()}
-                sx={{
-                  border: `2px dashed ${isDragActive ? theme.palette.primary.main : theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}`,
-                  borderRadius: '10px',
-                  p: 4,
-                  my: 2,
-                  cursor: 'pointer',
-                  bgcolor: isDragActive ? (theme.palette.mode === 'dark' ? 'rgba(25, 118, 210, 0.1)' : 'rgba(25, 118, 210, 0.05)') : 'transparent',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: '160px'
-                }}
+              className={`border-2 border-dashed rounded-lg p-8 my-4 cursor-pointer flex flex-col items-center justify-center min-h-[160px] transition-all duration-200 ${isDragActive ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-700 bg-transparent'}`}
               >
                 <input {...getInputProps()} />
-                <CloudUpload fontSize="large" color="primary" sx={{ mb: 2, fontSize: '3rem' }} />
-
-                <Typography variant="body1" color="text.primary" fontWeight="medium">
+              <svg className="w-12 h-12 text-primary-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4M4 20h16" />
+              </svg>
+              <div className="font-medium text-gray-800 dark:text-gray-100">
                   {isDragActive
                     ? "Drop your audio file here..."
                     : file
                       ? "File selected! Click or drag to replace."
                       : "Drag & drop your audio file here, or click to browse"}
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Supported formats: MP3, WAV
-                </Typography>
-
+              </div>
                 {!file && (
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    startIcon={<UploadFile />}
-                    sx={{ mt: 2, borderRadius: "30px" }}
+                <button
+                  type="button"
+                  className="btn-secondary mt-4"
                   >
                     Browse Files
-                  </Button>
+                </button>
                 )}
-
                 {file && (
-                  <Box sx={{
-                    mt: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    p: 1,
-                    borderRadius: '8px',
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
-                  }}>
-                    <Typography variant="body2" color="primary" fontWeight="medium">
+                <div className="mt-4 flex items-center justify-center p-2 rounded bg-gray-100 dark:bg-gray-800/60">
+                  <span className="text-primary-500 font-medium text-sm truncate max-w-xs">
                       {file.name}
-                    </Typography>
-                    <Tooltip title="File selected">
-                      <IconButton size="small" color="success" sx={{ ml: 1 }}>
-                        <InfoOutlined fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                )}
-              </Box>
+                  </span>
+                  <button
+                    type="button"
+                    className="ml-3 text-red-500 hover:text-red-700 text-xs font-semibold"
+                    onClick={e => { e.stopPropagation(); setFile(null); }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
             </motion.div>
-          </CardContent>
-
-          <Divider sx={{ my: 1, mx: { xs: 1, sm: 3 } }} />
-
-          <CardActions sx={{ justifyContent: "center", p: 3 }}>
-            <motion.div
-              variants={animationVariants.item}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={handleUpload}
-                disabled={loading}
-                sx={{
-                  py: 1.2,
-                  px: 4,
-                  borderRadius: "30px",
-                  fontWeight: "bold",
-                  fontSize: "1rem",
-                  background: theme.palette.mode === 'dark'
-                    ? "linear-gradient(90deg, #2196F3 0%, #64B5F6 100%)"
-                    : "linear-gradient(90deg, #1976D2 0%, #42A5F5 100%)",
-                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
-                  "&:hover": {
-                    background: theme.palette.mode === 'dark'
-                      ? "linear-gradient(90deg, #1E88E5 0%, #2196F3 100%)"
-                      : "linear-gradient(90deg, #1565C0 0%, #1976D2 100%)",
-                  }
-                }}
-              >
-                {loading ? "Processing..." : "Analyze Audio"}
-              </Button>
-            </motion.div>
-          </CardActions>
-
-          {loading && (
-            <motion.div
-              variants={animationVariants.item}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <Box sx={{ px: 3, pb: 3 }}>
-                <Typography variant="body2" color="text.secondary" fontWeight="medium" mb={1.5}>
-                  {statusMsg}
-                </Typography>
-                <LinearProgress
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    '& .MuiLinearProgress-bar': {
-                      backgroundImage: 'linear-gradient(90deg, #1976D2, #42A5F5)'
-                    }
-                  }}
-                />
-              </Box>
-            </motion.div>
-          )}
-
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Alert
-                severity="error"
-                sx={{
-                  mt: 2,
-                  mx: 3,
-                  borderRadius: "8px",
-                  '& .MuiAlert-icon': {
-                    fontSize: '1.2rem'
-                  }
-                }}
-              >
+            <motion.div variants={animationVariants.item} className="mt-4">
+              <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 text-sm">
                 {error}
-              </Alert>
+              </div>
             </motion.div>
           )}
-        </Card>
-      </motion.div>
-
-      <motion.div
-        variants={animationVariants.item}
-        transition={{ delay: 0.2 }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            margin: "1rem",
-            flexDirection: "column",
-            gap: 2,
-            mt: 4
-          }}
-        >
-          <Paper
-            elevation={2}
-            sx={{
-              p: 2.5,
-              backgroundColor: theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : '#f8f9fb',
-              borderRadius: "10px",
-              width: "100%",
-              borderLeft: `4px solid ${theme.palette.warning.main}`
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-              <NotificationAddOutlined color="warning" sx={{ mr: 1.5, mt: 0.2 }} />
-              <Typography variant="body2" color="text.primary" fontWeight="medium">
-                <Typography component="span" fontWeight="bold" color="warning.main">
-                  Important:
-                </Typography>{" "}
+          {statusMsg && loading && (
+            <motion.div variants={animationVariants.item} className="mt-4">
+              <div className="w-full max-w-md mx-auto">
+                <div className="h-2 bg-blue-100 dark:bg-blue-800/30 rounded-full overflow-hidden relative">
+                  <div className="absolute left-0 top-0 h-full rounded-full bg-blue-600 dark:bg-blue-400 animate-indeterminate-bar" style={{ width: '40%' }}></div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+          <motion.div variants={animationVariants.item} className="mt-8">
+            <button
+              className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={handleUpload}
+              disabled={loading}
+            >
+              {loading ? "Analyzing..." : "Analyze Audio"}
+            </button>
+          </motion.div>
+          <div className="mt-6 space-y-4">
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="font-bold text-yellow-600 dark:text-yellow-400">Important:</span>{" "}
                 The first analysis may take some time as our AI model initializes, but subsequent analyses will be faster.
                 Please be patient during the initial processing.
-              </Typography>
-            </Box>
-          </Paper>
+              </p>
+            </div>
 
-          <Paper
-            elevation={2}
-            sx={{
-              p: 2.5,
-              backgroundColor: theme.palette.mode === 'dark' ? 'rgba(229, 115, 115, 0.08)' : '#fff8f8',
-              borderRadius: "10px",
-              width: "100%",
-              borderLeft: `4px solid ${theme.palette.error.main}`
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-              <Warning color="error" sx={{ mr: 1.5, mt: 0.2 }} />
-              <Typography variant="body2" color="text.primary" fontWeight="medium">
-                <Typography component="span" fontWeight="bold" color="error.main">
-                  Disclaimer:
-                </Typography>{" "}
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="font-bold text-red-600 dark:text-red-400">Disclaimer:</span>{" "}
                 We don't save or store any of the audio files you upload. Your privacy is our priority.
                 Feel free to perform as many analyses as you need.
-              </Typography>
-            </Box>
-          </Paper>
-        </Box>
+              </p>
+            </div>
+          </div>
+        </div>
       </motion.div>
-    </Container>
+    </div>
   );
 };
 
