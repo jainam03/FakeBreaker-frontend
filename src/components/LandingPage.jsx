@@ -64,8 +64,16 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="min-h-screen relative bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+            {/* Background shapes/blobs */}
+            <div className="absolute inset-0 overflow-hidden z-0">
+                <div className="absolute top-0 left-0 w-96 h-96 bg-primary-400/20 dark:bg-primary-500/20 rounded-full filter blur-3xl animate-gradient-xy -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="absolute top-1/4 right-0 w-80 h-80 bg-purple-400/20 dark:bg-purple-500/20 rounded-full filter blur-3xl animate-gradient-xy translate-x-1/3"></div>
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-pink-400/20 dark:bg-pink-500/20 rounded-full filter blur-3xl animate-gradient-xy"></div>
+                <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-yellow-300/20 dark:bg-yellow-400/20 rounded-full filter blur-3xl animate-gradient-xy"></div>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
                 {/* Hero Section */}
                 <div className="text-center">
                     <motion.h1
@@ -109,29 +117,6 @@ const LandingPage = () => {
                     </motion.div>
                 </div>
 
-                {/* Features Section */}
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {features.map((feature, index) => (
-                        <motion.div
-                            key={feature.title}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 * index }}
-                            className="glass-card p-6"
-                        >
-                            <div className="text-primary-500 dark:text-primary-400 mb-4">
-                                {feature.icon}
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                {feature.title}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                {feature.description}
-                            </p>
-                        </motion.div>
-                    ))}
-                </div>
-
                 {/* How It Works Section */}
                 <div className="mt-20">
                     <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
@@ -144,7 +129,7 @@ const LandingPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 * index }}
-                                className="glass-card p-6 text-center"
+                                className="glass-card noise-overlay p-6 text-center"
                             >
                                 <div className="flex justify-center mb-4">
                                     {step.icon}
@@ -172,7 +157,7 @@ const LandingPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.1 * index }}
-                                className="glass-card overflow-hidden"
+                                className="glass-card noise-overlay overflow-hidden"
                             >
                                 <button
                                     onClick={() => toggleFaq(index)}
@@ -213,7 +198,7 @@ const LandingPage = () => {
 const features = [
     {
         title: "Advanced Analysis",
-        description: "Utilize cutting-edge AI technology to detect and analyze potential fake news content.",
+        description: "Cutting-edge technology to detect and analyze potential fake media.",
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
