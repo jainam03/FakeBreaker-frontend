@@ -85,7 +85,7 @@ const UploadForm = () => {
         initial="hidden"
         animate="visible"
       >
-        <div className="glass-card p-8 text-center">
+        <div className="glass-card noise-overlay p-8 text-center">
             <motion.div variants={animationVariants.item}>
             <h2 className="text-3xl font-bold text-primary-500 dark:text-primary-400 mb-3">Upload Your Audio</h2>
             </motion.div>
@@ -167,7 +167,7 @@ const UploadForm = () => {
             </button>
           </motion.div>
           <div className="mt-6 space-y-4">
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="p-4 bg-yellow-50/80 dark:bg-yellow-900/30 backdrop-blur-sm rounded-lg border border-yellow-200/30 dark:border-yellow-800/30">
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 <span className="font-bold text-yellow-600 dark:text-yellow-400">Important:</span>{" "}
                 The first analysis may take some time as our AI model initializes, but subsequent analyses will be faster.
@@ -175,7 +175,7 @@ const UploadForm = () => {
               </p>
             </div>
 
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+            <div className="p-4 bg-red-50/80 dark:bg-red-900/30 backdrop-blur-sm rounded-lg border border-red-200/30 dark:border-red-800/30">
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 <span className="font-bold text-red-600 dark:text-red-400">Disclaimer:</span>{" "}
                 We don't save or store any of the audio files you upload. Your privacy is our priority.

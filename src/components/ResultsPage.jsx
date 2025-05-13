@@ -148,7 +148,7 @@ const ResultsPage = () => {
                 animate="visible"
             >
                 <motion.div variants={itemVariants}>
-                    <div className="glass-card overflow-hidden">
+                    <div className="glass-card noise-overlay overflow-hidden">
                         {/* Header */}
                         <div className="py-6 px-6 bg-gradient-to-r from-primary-600 to-primary-400 text-white text-center">
                             <h2 className="text-2xl font-bold mb-2">Analysis Results</h2>
@@ -209,13 +209,13 @@ const ResultsPage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 mb-6">
-                                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div className="p-4 bg-gray-50/70 dark:bg-gray-800/60 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-700/20">
                                         <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Real Probability</div>
                                         <div className={`text-2xl font-bold ${getProbabilityColor(result.real_probability, true)}`}>
                                             {Math.round(result.real_probability)}%
                                         </div>
                                     </div>
-                                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div className="p-4 bg-gray-50/70 dark:bg-gray-800/60 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-700/20">
                                         <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Fake Probability</div>
                                         <div className={`text-2xl font-bold ${getProbabilityColor(result.fake_probability, false)}`}>
                                             {Math.round(result.fake_probability)}%
@@ -224,7 +224,7 @@ const ResultsPage = () => {
                                 </div>
 
                                 {/* Important Information Warning */}
-                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
+                                <div className="p-4 bg-blue-50/80 dark:bg-blue-900/30 backdrop-blur-sm rounded-lg border border-blue-200/30 dark:border-blue-800/30 mb-6">
                                     <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2">
                                                 Important Information
                                     </h4>

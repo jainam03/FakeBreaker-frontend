@@ -24,7 +24,7 @@ const NavBar = () => {
     ];
 
     return (
-        <nav className="glass-navbar sticky top-0 z-50">
+        <nav className="glass-navbar noise-overlay sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
@@ -93,7 +93,7 @@ const NavBar = () => {
                     exit={{ opacity: 0, y: -20 }}
                     className="md:hidden"
                 >
-                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 glass-card noise-overlay m-2 shadow-lg">
                         {navItems.map((item) => (
                             <Link
                                 key={item.text}
