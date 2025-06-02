@@ -7,6 +7,7 @@ import ResultsPage from "./components/ResultsPage";
 import LandingPage from "./components/LandingPage";
 import LearnMore from "./components/LearnMore";
 import Footer from "./components/Footer";
+import {Analytics} from "@vercel/analytics/react"
 
 function App() {
   useEffect(() => {
@@ -45,6 +46,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <Analytics />
       </Router>
     </div>
   );
