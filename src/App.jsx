@@ -8,6 +8,8 @@ import LandingPage from "./components/LandingPage";
 import LearnMore from "./components/LearnMore";
 import Footer from "./components/Footer";
 import {Analytics} from "@vercel/analytics/react"
+import AuthRedirect from "./components/AuthRedirect";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   useEffect(() => {
@@ -39,9 +41,18 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/landing" replace />} />
             <Route path="/landing" element={<LandingPage />} />
-            <Route path="/upload" element={<UploadForm />} />
-            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/upload" element={
+              <ProtectedRoute>
+                <UploadForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/results" element={
+              <ProtectedRoute>
+                <ResultsPage />
+              </ProtectedRoute>
+            } />
             <Route path="/learn-more" element={<LearnMore />} />
+            <Route path="/auth" element={<AuthRedirect />} />
             <Route path="*" element={<Navigate to="/landing" replace />} />
           </Routes>
         </main>

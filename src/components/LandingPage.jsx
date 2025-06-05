@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "@clerk/clerk-react";
 
 const steps = [
     { 
@@ -54,6 +55,8 @@ const faqs = [
 const LandingPage = () => {
     const [fadeIn, setFadeIn] = useState(false);
     const [expandedFaq, setExpandedFaq] = useState(null);
+    const { isSignedIn } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         setFadeIn(true);
@@ -61,6 +64,16 @@ const LandingPage = () => {
 
     const toggleFaq = (index) => {
         setExpandedFaq(expandedFaq === index ? null : index);
+    };
+
+    const handleStartAnalysis = () => {
+        console.log('Start Analysis clicked, isSignedIn:', isSignedIn); // Debug log
+        if (isSignedIn) {
+            navigate('/upload');
+        } else {
+            console.log('Navigating to /auth'); // Debug log
+            navigate('/auth');
+        }
     };
 
     return (
@@ -102,12 +115,12 @@ const LandingPage = () => {
                         transition={{ duration: 0.5, delay: 0.4 }}
                         className="flex flex-col sm:flex-row justify-center gap-4"
                     >
-                        <Link
-                            to="/upload"
+                        <button
+                            onClick={handleStartAnalysis}
                             className="btn-primary text-center"
                         >
                             Start Analysis
-                        </Link>
+                        </button>
                         <Link
                             to="/learn-more"
                             className="btn-secondary text-center"
@@ -145,15 +158,15 @@ const LandingPage = () => {
                     </div>
                 </div>
 
-            {/* FAQ Section */}
+                {/* FAQ Section */}
                 <div className="mt-20">
                     <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-                    Frequently Asked Questions
+                        Frequently Asked Questions
                     </h2>
                     <div className="max-w-3xl mx-auto space-y-4">
-                {faqs.map((faq, index) => (
+                        {faqs.map((faq, index) => (
                             <motion.div
-                        key={index}
+                                key={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.1 * index }}
@@ -164,7 +177,7 @@ const LandingPage = () => {
                                     className="w-full px-6 py-4 text-left flex justify-between items-center"
                                 >
                                     <span className="text-lg font-medium text-gray-900 dark:text-white">
-                                {faq.question}
+                                        {faq.question}
                                     </span>
                                     <svg
                                         className={`w-5 h-5 transform transition-transform duration-200 ${
@@ -183,7 +196,7 @@ const LandingPage = () => {
                                     }`}
                                 >
                                     <p className="text-gray-600 dark:text-gray-300">
-                                {faq.answer}
+                                        {faq.answer}
                                     </p>
                                 </div>
                             </motion.div>

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { SignedIn, UserButton } from "@clerk/clerk-react";
 
 const NavBar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isDark, setIsDark] = useState(false);
+    const location = useLocation();
+    const isLandingPage = location.pathname === '/landing';
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme");
@@ -64,6 +67,11 @@ const NavBar = () => {
                                 </svg>
                             )}
                         </button>
+                        {!isLandingPage && (
+                            <SignedIn>
+                                <UserButton afterSignOutUrl="/" />
+                            </SignedIn>
+                        )}
                     </div>
 
                     {/* Mobile menu button */}
@@ -110,6 +118,13 @@ const NavBar = () => {
                         >
                             {isDark ? "Light Mode" : "Dark Mode"}
                         </button>
+                        {!isLandingPage && (
+                            <SignedIn>
+                                <div className="px-3 py-2">
+                                    <UserButton afterSignOutUrl="/" />
+                                </div>
+                            </SignedIn>
+                        )}
                     </div>
                 </motion.div>
             )}
