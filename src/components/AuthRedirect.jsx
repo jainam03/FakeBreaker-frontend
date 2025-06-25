@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useClerk } from '@clerk/clerk-react';
 
@@ -6,6 +6,13 @@ const AuthRedirect = () => {
     const { isSignedIn, isLoaded } = useAuth();
     const { openSignIn, openSignUp } = useClerk();
     const navigate = useNavigate();
+
+    // Redirect to /upload if already signed in (useEffect to avoid render issues)
+    useEffect(() => {
+        if (isLoaded && isSignedIn) {
+            navigate('/upload', { replace: true });
+        }
+    }, [isLoaded, isSignedIn, navigate]);
 
     // Show loading state while Clerk is initializing
     if (!isLoaded) {
@@ -21,7 +28,7 @@ const AuthRedirect = () => {
 
     // If already signed in, redirect to upload page
     if (isSignedIn) {
-        navigate('/upload', { replace: true });
+        // Don't render anything while redirecting
         return null;
     }
 
@@ -73,4 +80,4 @@ const AuthRedirect = () => {
     );
 };
 
-export default AuthRedirect; 
+export default AuthRedirect;
